@@ -62,7 +62,7 @@ while read -r _ printer _ uri; do
   is_default=false
   [[ "$printer" == "$DEFAULT_PRINTER" ]] && is_default=true
   printf '"%s","%s","%s","%s","%s"\n' \
-    "$printer" "$uri" "${state//"/""}" "${accepting//"/""}" "$is_default" >> "$CSV"
+    "$printer" "$uri" "${state//\"/\"\"}" "${accepting//\"/\"\"}" "$is_default" >> "$CSV"
 done < <(lpstat -v 2>/dev/null)
 
 HOST_REACHABLE=false
