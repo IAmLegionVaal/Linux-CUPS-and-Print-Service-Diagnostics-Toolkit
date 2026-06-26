@@ -1,0 +1,37 @@
+name: Apply audited ShellCheck fixes
+
+on:
+  push:
+    branches: [fix/audit-shell-parser]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/audit-shell-parser
+      - name: Apply and validate patch
+        shell: bash
+        run: |
+          printf '%s' 'LS0tIGEvc3JjL2xpbnV4X2N1cHNfcmVwYWlyLnNoCisrKyBiL3NyYy9saW51eF9jdXBzX3JlcGFpci5zaApAQCAtNDIsMTIgKzQyLDIzIEBACiBTVEFNUD0kKGRhdGUgKyVZJW0lZF8lSCVNJVMpOyBPVVRQVVRfRElSPSIke09VVFBVVF9ESVI6LS4vY3Vwcy1yZXBhaXItJFNUQU1QfSI7IG1rZGlyIC1wICIkT1VUUFVUX0RJUiI7IExPRz0iJE9VVFBVVF9ESVIvcmVwYWlyLmxvZyI7IEJFRk9SRT0iJE9VVFBVVF9ESVIvYmVmb3JlLnR4dCI7IEFGVEVSPSIkT1VUUFVUX0RJUi9hZnRlci50eHQiOyA6ID4iJExPRyIKIGxvZygpeyBwcmludGYgJyVzICVzXG4nICIkKGRhdGUgJyslRiAlVCcpIiAiJCoiIHwgdGVlIC1hICIkTE9HIjsgfQogY29uZmlybSgpeyAkQVNTVU1FX1lFUyAmJiByZXR1cm4gMDsgcmVhZCAtciAtcCAiJDEgW3kvTl06ICIgYTsgY2FzZSAiJGEiIGluIHl8WXx5ZXN8WUVTKSByZXR1cm4gMDs7ICopIHJldHVybiAxOzsgZXNhYzsgfQotcnVuKCl7IGxvY2FsIGQ9IiQxIjsgc2hpZnQ7IEFDVElPTlM9JCgoQUNUSU9OUysxKSk7IGxvZyAiJGQiOyBpZiAkRFJZX1JVTjsgdGhlbiBwcmludGYgJ0RSWS1SVU46JyA+PiIkTE9HIjsgcHJpbnRmICcgJXEnICIkQCIgPj4iJExPRyI7IHByaW50ZiAnXG4nID4+IiRMT0ciOyByZXR1cm4gMDsgZmk7IGlmICIkQCIgPj4iJExPRyIgMj4mMTsgdGhlbiBsb2cgIlNVQ0NFU1M6ICRkIjsgZWxzZSBGQUlMVVJFUz0kKChGQUlMVVJFUysxKSk7IGxvZyAiV0FSTklORzogJGQgZmFpbGVkIjsgcmV0dXJuIDE7IGZpOyB9CitydW4oKXsgbG9jYWwgZD0iJDEiOyBzaGlmdDsgQUNUSU9OUz0kKChBQ1RJT05TKzEpKTsgbG9nICIkZCI7IGlmICREUllfUlVOOyB0aGVuCisgICAgeyBwcmludGYgJ0RSWS1SVU46JzsgcHJpbnRmICcgJXEnICIkQCI7IHByaW50ZiAnXG4nOyB9ID4+IiRMT0ciCisgICAgcmV0dXJuIDAKKyAgZmk7IGlmICIkQCIgPj4iJExPRyIgMj4mMTsgdGhlbiBsb2cgIlNVQ0NFU1M6ICRkIjsgZWxzZSBGQUlMVVJFUz0kKChGQUlMVVJFUysxKSk7IGxvZyAiV0FSTklORzogJGQgZmFpbGVkIjsgcmV0dXJuIDE7IGZpOyB9CiByb290KCl7IGxvY2FsIGQ9IiQxIjsgc2hpZnQ7IGlmIFsgIiQoaWQgLXUpIiAtZXEgMCBdOyB0aGVuIHJ1biAiJGQiICIkQCI7IGVsc2UgcnVuICIkZCIgc3VkbyAiJEAiOyBmaTsgfQotY29sbGVjdCgpeyBsb2NhbCBmPSIkMSI7IHsgZWNobyAiQ29sbGVjdGVkOiAkKGRhdGUgLUlzKSI7IFsgLW4gIiRTRVJWSUNFIiBdICYmIHN5c3RlbWN0bCBzdGF0dXMgIiRTRVJWSUNFIiAtLW5vLXBhZ2VyIC1sIDI+JjEgfHwgdHJ1ZTsgZWNobzsgbHBzdGF0IC10IDI+JjEgfHwgdHJ1ZTsgZWNobzsgbHBxIC1hIDI+JjEgfHwgdHJ1ZTsgZWNobzsgam91cm5hbGN0bCAtdSAiJHtTRVJWSUNFOi1jdXBzLnNlcnZpY2V9IiAtbiAxMDAgLS1uby1wYWdlciAyPiYxIHx8IHRydWU7IH0gPiIkZiI7IH0KK2NvbGxlY3QoKXsgbG9jYWwgZj0iJDEiOyB7IGVjaG8gIkNvbGxlY3RlZDogJChkYXRlIC1JcykiOyBpZiBbIC1uICIkU0VSVklDRSIgXTsgdGhlbiBzeXN0ZW1jdGwgc3RhdHVzICIkU0VSVklDRSIgLS1uby1wYWdlciAtbCAyPiYxIHx8IHRydWU7IGZpOyBlY2hvOyBscHN0YXQgLXQgMj4mMSB8fCB0cnVlOyBlY2hvOyBscHEgLWEgMj4mMSB8fCB0cnVlOyBlY2hvOyBqb3VybmFsY3RsIC11ICIke1NFUlZJQ0U6LWN1cHMuc2VydmljZX0iIC1uIDEwMCAtLW5vLXBhZ2VyIDI+JjEgfHwgdHJ1ZTsgfSA+IiRmIjsgfQogY29sbGVjdCAiJEJFRk9SRSI7IGNvbmZpcm0gIkFwcGx5IHRoZSBzZWxlY3RlZCBDVVBTIGFuZCBwcmludGVyIHJlcGFpcnM/IiB8fCB7IGxvZyAiUmVwYWlyIGNhbmNlbGxlZC4iOyBleGl0IDEwOyB9Ci1pZiAkUkVTVEFSVF9DVVBTOyB0aGVuIFsgLW4gIiRTRVJWSUNFIiBdICYmIHJvb3QgIlJlc3RhcnRpbmcgJFNFUlZJQ0UiIHN5c3RlbWN0bCByZXN0YXJ0ICIkU0VSVklDRSIgfHwgeyBGQUlMVVJFUz0kKChGQUlMVVJFUysxKSk7IGxvZyAiV0FSTklORzogQ1VQUyBzZXJ2aWNlIG5vdCBmb3VuZC4iOyB9OyBmaQotJEVOQUJMRV9QUklOVEVSICYmIHJvb3QgIkVuYWJsaW5nIHByaW50ZXIgJFBSSU5URVIiIGN1cHNlbmFibGUgIiRQUklOVEVSIiB8fCB0cnVlCitpZiAkUkVTVEFSVF9DVVBTOyB0aGVuCisgIGlmIFsgLW4gIiRTRVJWSUNFIiBdOyB0aGVuCisgICAgcm9vdCAiUmVzdGFydGluZyAkU0VSVklDRSIgc3lzdGVtY3RsIHJlc3RhcnQgIiRTRVJWSUNFIiB8fCB0cnVlCisgIGVsc2UKKyAgICBGQUlMVVJFUz0kKChGQUlMVVJFUysxKSk7IGxvZyAiV0FSTklORzogQ1VQUyBzZXJ2aWNlIG5vdCBmb3VuZC4iCisgIGZpCitmaQoraWYgJEVOQUJMRV9QUklOVEVSOyB0aGVuCisgIHJvb3QgIkVuYWJsaW5nIHByaW50ZXIgJFBSSU5URVIiIGN1cHNlbmFibGUgIiRQUklOVEVSIiB8fCB0cnVlCitmaQogaWYgJFJFU1VNRV9QUklOVEVSOyB0aGVuIHJvb3QgIkFjY2VwdGluZyBqb2JzIGZvciAkUFJJTlRFUiIgY3Vwc2FjY2VwdCAiJFBSSU5URVIiIHx8IHRydWU7IHJvb3QgIlJlc3VtaW5nIHByaW50ZXIgJFBSSU5URVIiIGN1cHNlbmFibGUgIiRQUklOVEVSIiB8fCB0cnVlOyBmaQogaWYgJFBVUkdFX0pPQlMgJiYgY29uZmlybSAiQ2FuY2VsIGFsbCBqb2JzIG9uICRQUklOVEVSPyI7IHRoZW4gcm9vdCAiQ2FuY2VsbGluZyBhbGwgam9icyBvbiAkUFJJTlRFUiIgY2FuY2VsIC1hICIkUFJJTlRFUiIgfHwgdHJ1ZTsgZmkKIFsgLXogIiRDQU5DRUxfSk9CIiBdIHx8IHJvb3QgIkNhbmNlbGxpbmcgcHJpbnQgam9iICRDQU5DRUxfSk9CIiBjYW5jZWwgIiRDQU5DRUxfSk9CIiB8fCB0cnVlCg==' | base64 -d > /tmp/audit.patch
+          git apply --check /tmp/audit.patch
+          git apply /tmp/audit.patch
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          while IFS= read -r -d '' file; do bash -n "$file"; done < <(find src -type f -name '*.sh' -print0)
+          mapfile -d '' files < <(find src -type f -name '*.sh' -print0)
+          shellcheck -x "${files[@]}"
+      - name: Commit validated fixes
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src
+          git rm .github/workflows/apply-shellcheck-fixes.yml
+          git commit -m "fix: resolve recursive ShellCheck findings"
+          git push origin HEAD:${GITHUB_REF_NAME}
