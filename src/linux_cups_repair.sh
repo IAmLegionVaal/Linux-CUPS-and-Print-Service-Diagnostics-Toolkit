@@ -42,12 +42,23 @@ SERVICE=""; for u in cups.service cupsd.service; do systemctl list-unit-files "$
 STAMP=$(date +%Y%m%d_%H%M%S); OUTPUT_DIR="${OUTPUT_DIR:-./cups-repair-$STAMP}"; mkdir -p "$OUTPUT_DIR"; LOG="$OUTPUT_DIR/repair.log"; BEFORE="$OUTPUT_DIR/before.txt"; AFTER="$OUTPUT_DIR/after.txt"; : >"$LOG"
 log(){ printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
 confirm(){ $ASSUME_YES && return 0; read -r -p "$1 [y/N]: " a; case "$a" in y|Y|yes|YES) return 0;; *) return 1;; esac; }
-run(){ local d="$1"; shift; ACTIONS=$((ACTIONS+1)); log "$d"; if $DRY_RUN; then printf 'DRY-RUN:' >>"$LOG"; printf ' %q' "$@" >>"$LOG"; printf '\n' >>"$LOG"; return 0; fi; if "$@" >>"$LOG" 2>&1; then log "SUCCESS: $d"; else FAILURES=$((FAILURES+1)); log "WARNING: $d failed"; return 1; fi; }
+run(){ local d="$1"; shift; ACTIONS=$((ACTIONS+1)); log "$d"; if $DRY_RUN; then
+    { printf 'DRY-RUN:'; printf ' %q' "$@"; printf '\n'; } >>"$LOG"
+    return 0
+  fi; if "$@" >>"$LOG" 2>&1; then log "SUCCESS: $d"; else FAILURES=$((FAILURES+1)); log "WARNING: $d failed"; return 1; fi; }
 root(){ local d="$1"; shift; if [ "$(id -u)" -eq 0 ]; then run "$d" "$@"; else run "$d" sudo "$@"; fi; }
-collect(){ local f="$1"; { echo "Collected: $(date -Is)"; [ -n "$SERVICE" ] && systemctl status "$SERVICE" --no-pager -l 2>&1 || true; echo; lpstat -t 2>&1 || true; echo; lpq -a 2>&1 || true; echo; journalctl -u "${SERVICE:-cups.service}" -n 100 --no-pager 2>&1 || true; } >"$f"; }
+collect(){ local f="$1"; { echo "Collected: $(date -Is)"; if [ -n "$SERVICE" ]; then systemctl status "$SERVICE" --no-pager -l 2>&1 || true; fi; echo; lpstat -t 2>&1 || true; echo; lpq -a 2>&1 || true; echo; journalctl -u "${SERVICE:-cups.service}" -n 100 --no-pager 2>&1 || true; } >"$f"; }
 collect "$BEFORE"; confirm "Apply the selected CUPS and printer repairs?" || { log "Repair cancelled."; exit 10; }
-if $RESTART_CUPS; then [ -n "$SERVICE" ] && root "Restarting $SERVICE" systemctl restart "$SERVICE" || { FAILURES=$((FAILURES+1)); log "WARNING: CUPS service not found."; }; fi
-$ENABLE_PRINTER && root "Enabling printer $PRINTER" cupsenable "$PRINTER" || true
+if $RESTART_CUPS; then
+  if [ -n "$SERVICE" ]; then
+    root "Restarting $SERVICE" systemctl restart "$SERVICE" || true
+  else
+    FAILURES=$((FAILURES+1)); log "WARNING: CUPS service not found."
+  fi
+fi
+if $ENABLE_PRINTER; then
+  root "Enabling printer $PRINTER" cupsenable "$PRINTER" || true
+fi
 if $RESUME_PRINTER; then root "Accepting jobs for $PRINTER" cupsaccept "$PRINTER" || true; root "Resuming printer $PRINTER" cupsenable "$PRINTER" || true; fi
 if $PURGE_JOBS && confirm "Cancel all jobs on $PRINTER?"; then root "Cancelling all jobs on $PRINTER" cancel -a "$PRINTER" || true; fi
 [ -z "$CANCEL_JOB" ] || root "Cancelling print job $CANCEL_JOB" cancel "$CANCEL_JOB" || true
